@@ -11,8 +11,13 @@ let cvv = document.getElementById("cvv");
 let amount = document.getElementById("amount");
 let buttonSubmit = document.getElementById("payFine");
 
+//Ця зміна містить всі дані які в нас зберігаються у файлі data
+let DB = data.finesData;
 
-
+const reFineNumberOrCvv = /^\d{3}$/;
+const rePassport = /^[А-ЩЬЮЯҐЄІЇІ]{2}\d{6}$/;
+const reCreditCard = /^(3[47]|4\d|5[1-5]|6\d)\d{14}$/;
+const reAmount = /^[1-9][\d][\d]?$/;
 
 /**
 Вам необхідно реалізувати наступний функціонал.
@@ -31,8 +36,71 @@ alert "Номер не співпадає" або "Сума не співпад�
 Якщо валідація проходить успішно, то виконати оплату,
  тобто вам потрібно видалити обєкт з DB
  */
+
+ function findMatchingFine(fineNumber, amount) {
+    for (let index in DB) {
+        const fine = DB[index];
+        if (fine.номер === fineNumber && fine.сума == amount) {
+            return fine;
+        }
+    }
+    return null;
+}
+
 buttonSubmit.addEventListener('click',payFine);
 function payFine(){
-    //Звертаючись до властивості finesData ви отримуєте всі дані з файлу data.js
-    console.log(data.finesData)
+    const matchingFine = findMatchingFine(fineNumber.value, amount.value);
+
+if (
+    reFineNumberOrCvv.test(fineNumber.value) == false ||
+    rePassport.test(passport.value) == false ||
+    reCreditCard.test(creditCardNumber.value) == false ||
+    reFineNumberOrCvv.test(cvv.value) == false ||
+    reAmount.test(amount.value) == false ||
+    cvv.value === '000'   
+) {
+    if (reFineNumberOrCvv.test(fineNumber.value) === false) {
+    alert("Номер штрафу не співпадає");
+    return;
+    }
+    if (rePassport.test(passport.value) === false) {
+    alert("Не вірний паспортний номер");
+    return;
+    }
+    if (reCreditCard.test(creditCardNumber.value) === false) {
+    alert("Не вірна кредитна картка");
+    return;
+    }
+    if (reFineNumberOrCvv.test(cvv.value) === false || cvv.value === '000') {
+    alert("Не вірний cvv");
+    return;
+    }
+    if (reAmount.test(amount.value) === false) {
+    alert("Сума не співпадає");
+    return;
+    }
+} else if (!matchingFine) { 
+    if (fineNumber !== fineNumber.value && amount.value !== amount.value) {
+        alert("Номер тa сума не співпадають");
+        return;
+    }
+    if (fineNumber === fineNumber.value && amount.value !== amount.value) {
+        alert("Сума не співпадає");
+        return;
+    }
+    if (fineNumber !== fineNumber.value && amount.value === amount.value) {
+        alert("Номер штрафу не співпадає");
+        return;
+    } 
+
+} else {
+
+    const fineIndex = DB.indexOf(matchingFine);
+    if(fineIndex !== -1) {
+    DB.splice(fineIndex, 1);
+    alert("Оплата успішна");
+    } else {
+        alert("Помилка оплати");
+    }
+}
 }
